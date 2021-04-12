@@ -1,0 +1,44 @@
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  annotations:
+    policies.kyverno.io/category: Pod Security Standards (Restricted)
+    policies.kyverno.io/description: Privilege escalation, such as via set-user-ID
+      or set-group-ID file mode, should not be allowed.
+  name: deny-privilege-escalation
+spec:
+  background: true
+  rules:
+  - exclude:
+      resources:
+        namespaces:
+        - demo
+    match:
+      resources:
+        kinds:
+        - Pod
+    name: deny-privilege-escalation
+  validationFailureAction: audit
+---
+apiVersion: kyverno.io/v1
+kind: ClusterPolicy
+metadata:
+  annotations:
+    policies.kyverno.io/category: Pod Security Standards (Restricted)
+    policies.kyverno.io/description: The runtime default seccomp profile must be required,
+      or only specific additional profiles should be allowed.
+    policies.kyverno.io/title: Restrict Seccomp
+  name: restrict-seccomp
+spec:
+  background: true
+  rules:
+  - exclude:
+      resources:
+        namespaces:
+        - demo
+    match:
+      resources:
+        kinds:
+        - Pod
+    name: seccomp
+  validationFailureAction: audit
