@@ -1,0 +1,4 @@
+clusterPatches:
+- target:
+     kind: ClusterPolicy
+  kustomizePatch: ./overlays/
