@@ -21,3 +21,23 @@ spec:
       resources:
         namespaces:
         - demo
+    validate:
+      message: >-
+        Use of custom Seccomp profiles is disallowed. The fields
+        spec.securityContext.seccompProfile.type,
+        spec.containers[*].securityContext.seccompProfile.type, and
+        spec.initContainers[*].securityContext.seccompProfile.type
+        must be unset or set to `runtime/default`.
+      pattern:
+        spec:
+          =(securityContext):
+            =(seccompProfile):
+              =(type): "runtime/default"
+          =(initContainers):
+          - =(securityContext):
+              =(seccompProfile):
+                =(type): "runtime/default"
+          containers:
+          - =(securityContext):
+              =(seccompProfile):
+                =(type): "runtime/default"
