@@ -1,20 +1,22 @@
 resources:
-- ../deny-privilege-escalation.yaml
+- ../require-labels.yaml
 patchesStrategicMerge:
 - |-
     apiVersion: kyverno.io/v1
     kind: ClusterPolicy
     metadata:
-      name: deny-privilege-escalation
+      name: require-labels-demo
       annotations:
-        policies.kyverno.io/category: Pod Security Standards (Restricted)
+        policies.kyverno.io/category: Best Practices
         policies.kyverno.io/description: >-
-          Privilege escalation, such as via set-user-ID or set-group-ID file mode, should not be allowed.
+          Define and use labels that identify semantic attributes of your application or Deployment.
+          A common set of labels allows tools to work interoperably, describing objects in a common manner that
+          all tools can understand. The recommended labels describe applications in a way that can be
+          queried.
     spec:
-      background: true
-      validationFailureAction: audit
+      validationFailureAction: enforce
       rules:
-      - name: deny-privilege-escalation
+      - name: check-for-labels
         match:
           resources:
             kinds:
@@ -24,17 +26,9 @@ patchesStrategicMerge:
             namespaces:
             - demo1
         validate:
-          message: >-
-            Privilege escalation is disallowed. The fields
-            spec.containers[*].securityContext.allowPrivilegeEscalation, and
-            spec.initContainers[*].securityContext.allowPrivilegeEscalation must
-            be undefined or set to `false`.
+          message: "The label `app.kubernetes.io/name` is required."
           pattern:
-            spec:
-              =(initContainers):
-              - =(securityContext):
-                  =(allowPrivilegeEscalation): "false"
-              containers:
-              - =(securityContext):
-                  =(allowPrivilegeEscalation): "false"
+            metadata:
+              labels:
+                app.kubernetes.io/name: "?*"
 
